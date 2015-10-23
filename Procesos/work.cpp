@@ -5,24 +5,23 @@ std::deque<Proceso*> Work::inserta(std::string texto)
 	std::deque<Proceso*> procesos;
 	std::fstream archivo;
 	archivo.open(texto, std::fstream::in);
-	std::string nombre;
-	float arrival;
-	float burst; 
 	archivo >> quantum;
-	archivo.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	archivo.ignore(1, '\n');
 
 	
 	while (!archivo.eof())
 	{
+		std::string nombre;
+		float arrival;
+		float burst;
 		archivo >> nombre;
-		archivo >> arrival;
-		archivo >> burst;
-		Proceso * procesoTemp = new Proceso(nombre, arrival, burst, false, 0.0);
-
-		if (archivo.eof())
+		if (nombre == "" || nombre == " ")
 		{
 			break;
 		}
+		archivo >> arrival;
+		archivo >> burst;
+		Proceso * procesoTemp = new Proceso(nombre, arrival, burst, false, 0.0);
 		procesos.push_back(procesoTemp);
 	}
 	return procesos;
@@ -30,19 +29,26 @@ std::deque<Proceso*> Work::inserta(std::string texto)
 
 bool Work::comparaArrival(Proceso* a, Proceso* b)
 {
-	if (a->getArrival() == b->getArrival())
+	/*if (a->getArrival() == b->getArrival())
 	{
 		return a->getBurst() < b->getBurst();
 	}
 	else
-	{
+	{*/
 		return a->getArrival() < b->getArrival();
-	}
+	//}
 }
 
 bool Work::comparaBurst(Proceso* a, Proceso* b)
 {
-	return a->getRemaining() < b->getRemaining();
+	if (a->getRemaining() == b->getRemaining())
+	{
+		return a->getArrival() < b->getArrival();
+	}
+	else
+	{
+		return a->getRemaining() < b->getRemaining();
+	}
 }
 
 bool Work::comparaNombre(Proceso* a, Proceso* b)
@@ -66,7 +72,7 @@ void Work::print(std::deque<Proceso*> procesos)
 
 void Work::SJF(std::deque<Proceso*> procesos)
 {
-	float tiempoActual = 0;
+	float tiempoActual = procesos[0]->getArrival();
 	float espera = 0;
 	float temp;
 	size_t i = 0;
@@ -136,9 +142,10 @@ void Work::SJF(std::deque<Proceso*> procesos)
 		}
 	}
 	int pos = 0;
+	std::cout << "Shortest Job first" << std::endl;
 	for (auto j : nombre)
 	{
-		std::cout << j << " " << duracion[pos++] << " | " << std::flush;
+		std::cout << "Nombre: "  << j << " " << "tiempo: " << duracion[pos++] << " | " << std::flush;
 	}
 	std::cout << std::endl;
 	std::cout << "Tiempos de espera" << std::endl;
@@ -154,7 +161,7 @@ void Work::SJF(std::deque<Proceso*> procesos)
 
 void Work::roundRobin(std::deque<Proceso*> procesos)
 {
-	float tiempoActual = 0;
+	float tiempoActual = procesos[0]->getArrival();
 	float espera = 0;
 	float temp;
 	size_t i = 0;
@@ -185,7 +192,7 @@ void Work::roundRobin(std::deque<Proceso*> procesos)
 			}
 			for (int j = 0; j < procesos.size(); j++)
 			{
-				if (procesos[j]->getArrival() < tiempoActual + quantum)
+				if (procesos[j]->getArrival() <= tiempoActual + quantum)
 				{
 					procesoTemp = procesos[j];
 					procesoTemp->setWait(quantum - (procesoTemp->getArrival() - tiempoActual));
@@ -208,7 +215,7 @@ void Work::roundRobin(std::deque<Proceso*> procesos)
 			}
 			for (int j = 0; j < procesos.size(); j++)
 			{
-				if (procesos[j]->getArrival() < tiempoActual + procesoActual->getRemaining())
+				if (procesos[j]->getArrival() <= tiempoActual + procesoActual->getRemaining())
 				{
 					procesoTemp = procesos[j];
 					procesoTemp->setWait(procesoActual->getRemaining() - (procesoTemp->getArrival() - tiempoActual));
@@ -228,9 +235,10 @@ void Work::roundRobin(std::deque<Proceso*> procesos)
 		}
 	}
 	int pos = 0;
+	std::cout << "Round Robin" << std::endl;
 	for (auto j : nombre)
 	{
-		std::cout << j << " " << duracion[pos++] << " | " << std::flush;
+		std::cout << "Nombre: " << j << " Tiempo: " << duracion[pos++] << " | " << std::flush;
 	}
 	std::cout << std::endl;
 	std::cout << "Tiempos de espera" << std::endl;

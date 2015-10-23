@@ -15,7 +15,7 @@ int main()
 	Work archivo;
 	procesos = archivo.inserta("texto.txt");
 	std::sort(procesos.begin(), procesos.end(), archivo.comparaArrival);
-	//archivo.print(procesos);
+	archivo.print(procesos);
 	archivo.roundRobin(procesos);
-	archivo.SJF(procesos);
+	//archivo.SJF(procesos);
 }
